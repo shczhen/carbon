@@ -9,6 +9,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import { settings } from 'carbon-components';
+import MouseOverTooltip from '../Tooltip/MouseOverTooltip';
+import CheckBoxIcon from './CheckBoxIcon';
 
 const { prefix } = settings;
 
@@ -22,6 +24,10 @@ const Checkbox = React.forwardRef(function Checkbox(
     hideLabel,
     wrapperClassName,
     title = '',
+    hasHierarchyItems = false,
+    hasGroups,
+    isExpanded,
+    tooltipText,
     ...other
   },
   ref
@@ -57,9 +63,35 @@ const Checkbox = React.forwardRef(function Checkbox(
           }
         }}
       />
-      <label htmlFor={id} className={labelClasses} title={title || null}>
-        <span className={innerLabelClasses}>{labelText}</span>
-      </label>
+      {!hasHierarchyItems ? (
+        <label htmlFor={id} className={labelClasses} title={title || null}>
+          <span className={innerLabelClasses}>{labelText}</span>
+        </label>
+      ) : (
+        <label className={labelClasses} title={title || null} htmlFor={id}>
+          <div
+            className={innerLabelClasses}
+            style={{
+              width: `${hasGroups ? 'calc(100% - 28px)' : '100%'}`,
+              display: 'flex',
+            }}>
+            <span style={{ maxWidth: '100%' }}>
+              {tooltipText ? (
+                <MouseOverTooltip
+                  className={`${prefix}--checkbox--tooltip`}
+                  showIcon={false}
+                  tabIndex={-1}
+                  triggerText={labelText}>
+                  {tooltipText}
+                </MouseOverTooltip>
+              ) : (
+                labelText
+              )}
+              {hasGroups && <CheckBoxIcon isExpanded={isExpanded} />}
+            </span>
+          </div>
+        </label>
+      )}
     </div>
   );
 });

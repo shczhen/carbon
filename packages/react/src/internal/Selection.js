@@ -36,43 +36,63 @@ export default class Selection extends React.Component {
     });
 
   handleClearSelection = () => {
-    if (this.props.disabled) {
-      return;
-    }
     this.internalSetState({
       selectedItems: [],
     });
   };
 
   handleSelectItem = item => {
-    this.internalSetState(state => ({
-      selectedItems: state.selectedItems.concat(item),
+    const items = Array.isArray(item) ? item : [item];
+    this.internalSetState(prevState => ({
+      selectedItems: [...prevState.selectedItems, ...items],
     }));
   };
 
-  handleRemoveItem = index => {
-    this.internalSetState(state => ({
-      selectedItems: removeAtIndex(state.selectedItems, index),
-    }));
+  handleRemoveItem = item => {
+    const items = Array.isArray(item) ? item : [item];
+    this.internalSetState(prevState => {
+      const newState = {
+        selectedItems: prevState.selectedItems.filter(
+          itemOnState => items.indexOf(itemOnState) === -1
+        ),
+      };
+      return newState;
+    });
   };
+
   handleOnItemChange = item => {
-    if (this.props.disabled) {
-      return;
-    }
     const { selectedItems } = this.state;
 
-    let selectedIndex;
-    selectedItems.forEach((selectedItem, index) => {
-      if (isEqual(selectedItem, item)) {
-        selectedIndex = index;
+    const itemsToProcess = Array.isArray(item) ? item : [item];
+    const result = itemsToProcess.reduce(
+      (acc, theItem) => {
+        let selectedIndex;
+        selectedItems.some((selectedItem, index) => {
+          if (isEqual(selectedItem, theItem)) {
+            selectedIndex = index;
+            return true;
+          }
+          return false;
+        });
+        if (selectedIndex === undefined) {
+          acc.itemsToSelect.push(theItem);
+        } else {
+          acc.itemsToRemove.push(selectedItems[selectedIndex]);
+        }
+        return acc;
+      },
+      {
+        itemsToSelect: [],
+        itemsToRemove: [],
       }
-    });
+    );
 
-    if (selectedIndex === undefined) {
-      this.handleSelectItem(item);
-      return;
+    if (result.itemsToSelect.length > 0) {
+      this.handleSelectItem(result.itemsToSelect);
     }
-    this.handleRemoveItem(selectedIndex);
+    if (result.itemsToRemove.length > 0) {
+      this.handleRemoveItem(result.itemsToRemove);
+    }
   };
 
   render() {
@@ -95,11 +115,3 @@ export default class Selection extends React.Component {
     return null;
   }
 }
-
-// Generic utility for safely removing an element at a given index from an
-// array.
-const removeAtIndex = (array, index) => {
-  const result = array.slice();
-  result.splice(index, 1);
-  return result;
-};
