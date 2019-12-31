@@ -160,4 +160,6 @@ Checkbox.defaultProps = {
   indeterminate: false,
 };
 
+Checkbox.displayName = 'Checkbox';
+
 export default Checkbox;

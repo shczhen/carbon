@@ -9,6 +9,7 @@ import MultiSelect from './MultiSelect';
 import FilterableMultiSelect from './FilterableMultiSelect';
 import NestedFilterableMultiselect from './NestedFilterableMultiselect.js';
 
+FilterableMultiSelect.displayName = 'MultiSelect.Filterable';
 MultiSelect.Filterable = FilterableMultiSelect;
 MultiSelect.NestedFilterableMultiselect = NestedFilterableMultiselect;
 
